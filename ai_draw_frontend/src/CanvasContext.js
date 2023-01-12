@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import fetchApi from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
+import { ImageCompressor } from 'image-compressor';
 
 const CanvasContext = React.createContext();
 
@@ -27,6 +28,18 @@ export function CanvasProvider({ children }) {
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
 
+  useEffect(() => { //Mobile functionality
+    const canvas = canvasRef.current;
+    canvas.addEventListener('touchstart', startDrawing);
+    canvas.addEventListener('touchmove', draw);
+    canvas.addEventListener('touchend', finishDrawing);
+    return () => {
+      canvas.removeEventListener('touchstart', startDrawing);
+      canvas.removeEventListener('touchmove', draw);
+      canvas.removeEventListener('touchend', finishDrawing);
+    };
+  }, []);
+
   const prepareCanvas = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
@@ -39,25 +52,44 @@ export function CanvasProvider({ children }) {
     contextRef.current = context;
   };
 
-  const startDrawing = ({ nativeEvent }) => {
-    const { offsetX, offsetY } = nativeEvent;
+
+  const startDrawing = (event) => {
+    event.preventDefault();
+    let x, y;
+    if ('ontouchstart' in window) {
+      x = event.touches[0].clientX * 1.5;
+      y = event.touches[0].clientY * 1.5;
+      console.log(x,y)
+    } else {
+      x = event.nativeEvent.offsetX * 1.5;
+      y = event.nativeEvent.offsetY * 1.5;
+    }
+    if (contextRef.current === null) return;
     contextRef.current.beginPath();
-    contextRef.current.moveTo(offsetX * 1.5, offsetY * 1.5);
+    contextRef.current.moveTo(x, y);
     setIsDrawing(true);
+  };
+
+  const draw = (event) => {
+    event.preventDefault();
+    if (!isDrawing) {
+      return;
+    }
+    let x, y;
+    if ('ontouchstart' in window) {
+      x = event.touches[0].clientX * 1.5;
+      y = event.touches[0].clientY * 1.5;
+    } else {
+      x = event.nativeEvent.offsetX * 1.5;
+      y = event.nativeEvent.offsetY * 1.5;
+    }
+    contextRef.current.lineTo(x, y);
+    contextRef.current.stroke();
   };
 
   const finishDrawing = () => {
     contextRef.current.closePath();
     setIsDrawing(false);
-  };
-
-  const draw = ({ nativeEvent }) => {
-    if (!isDrawing) {
-      return;
-    }
-    const { offsetX, offsetY } = nativeEvent;
-    contextRef.current.lineTo(offsetX * 1.5, offsetY * 1.5);
-    contextRef.current.stroke();
   };
 
   const clearCanvas = () => {
@@ -70,12 +102,18 @@ export function CanvasProvider({ children }) {
 
   async function CanvasToAI() {
     const canvas = canvasRef.current;
-    const pic = canvas.toDataURL('image/png');
+    const img = canvas.toDataURL('image/png');
+    const options = {
+        quality: 0.1
+    }
+    const compressor = new ImageCompressor();
+    const compressedImg = await compressor.compress(img, options);
     dispatch(updateResponse('Analyzing...'));
-    fetchApi(pic).then((res) => {
+    fetchApi(compressedImg).then((res) => {
       dispatch(updateResponse(res));
     });
-  }
+}
+
 
   class ColorPicker extends React.Component {
     handleChangeComplete = (color) => {

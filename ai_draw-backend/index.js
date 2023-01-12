@@ -22,7 +22,7 @@ app.post('/predict', async (req, res) => {
       version: 'a4a8bafd6089e1716b06057c42b19378250d008b80fe87caa5cd36d40c1eda90',
       input: {
         image: req.body.image,
-        clip_model_name: 'ViT-H-14/laion2b_s32b_b79k',
+        clip_model_name: 'ViT-L-14/openai',
         mode: 'fast',
       },
     };
