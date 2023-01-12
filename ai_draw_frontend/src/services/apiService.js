@@ -1,11 +1,12 @@
 import axios from 'axios';
-const baseUrl = '/predict'
+const baseUrl = 'http://localhost:8080/predict'
 
 const predictWithServer = async (picture) => {
   try {
     const response = await axios.post(baseUrl, {
       image: picture,
     });
+    if(typeof(response.data) !== "String") throw new Error
     return response.data;
   } catch (error) {
     console.error(error);

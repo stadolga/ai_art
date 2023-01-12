@@ -28,7 +28,7 @@ body{
 }
 
 .buttons, .sliders {
-  width: 100%;
+  width: 200px;
 }
 
 .container-fluid {
@@ -94,4 +94,17 @@ body{
   padding: 10px;
   border: 1px solid black;
   overflow-y: scroll;
+}
+
+.infoButton{
+  display:block;
+  height: 30px;
+  width: 30px;
+  border-radius: 50%;
+  border: 1px solid black;
+}
+
+.button1{
+  margin: auto;
+  width: 170px !important;
 }

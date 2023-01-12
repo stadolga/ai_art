@@ -1,8 +1,9 @@
 .button1{
+font-size: medium;
 display:inline-block;
-padding:0.5em 1.1em;
+    padding:0.1em 0.8em;
 border:0.1em solid #FFFFFF;
-margin:0 0.3em 0.3em 0;
+margin:0 0.1em 0.1em 0;
 border-radius:2em;
 box-sizing: border-box;
 text-decoration:none;
@@ -24,10 +25,12 @@ margin:0.4em auto;
 }
 
 .submitButton{
+font-size: medium;
+width: 170px;
 display:inline-block;
-padding:0.5em 1.1em;
+padding:0.1em 0.8em;
 border:0.1em solid #FFFFFF;
-margin:0 0.3em 0.3em 0;
+margin:0 0.1em 0.1em 0;
 border-radius:2em;
 box-sizing: border-box;
 text-decoration:none;
@@ -38,7 +41,7 @@ text-align:center;
 transition: all 0.2s;
 }
 .submitButton:hover{
-color:white;
+color:gray;
 background-color:lightgreen;
 }
 @media all and (max-width:30em){
@@ -49,13 +52,16 @@ margin:0.4em auto;
 }
 
 .resetButton{
+  font-size: medium;
+  width: 85px;
   display:inline-block;
-  padding:0.5em 1.1em;
+  padding:0.1em 0.8em;
   border:0.1em solid #FFFFFF;
-  margin:0 0.3em 0.3em 0;
+  margin:0 0.1em 0.1em 0;
   border-radius:2em;
   box-sizing: border-box;
   text-decoration:none;
+
   font-family:'Roboto',sans-serif;
   font-weight:bold;
   color:#1e0303;
@@ -63,7 +69,7 @@ margin:0.4em auto;
   transition: all 0.2s;
 }
 .resetButton:hover{
-  color:white;
+  color:gray;
   background-color:red;
 }
 @media all and (max-width:30em){
@@ -71,4 +77,58 @@ margin:0.4em auto;
   display:block;
   margin:0.4em auto;
   }
+}
+
+.tooltip-box{
+  border-radius: 5em;
+  font-family:'Roboto',sans-serif;
+  font-weight:300;
+  border-radius: 2em;
+  z-index: 2;
+  background-color: white; 
+  position:absolute;
+  padding: 10px;
+  border: 1px solid black;
+  overflow-y: scroll;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+}
+
+.undoButton{
+  font-size: medium;
+  width: 85px;
+  display:inline-block;
+  padding:0.1em 0.8em;
+  border:0.1em solid #FFFFFF;
+  margin:0 0.1em 0.1em 0;
+  border-radius:2em;
+  box-sizing: border-box;
+  text-decoration:none;
+
+  font-family:'Roboto',sans-serif;
+  font-weight:bold;
+  color:#1e0303;
+  text-align:center;
+  transition: all 0.2s;
+}
+.undoButton:hover{
+  color:gray;
+  background-color:yellow;
+}
+@media all and (max-width:30em){
+  a.undoButton{
+  display:block;
+  margin:0.4em auto;
+  }
+}
+
+.disabled-button {
+  background-color: gray;
+  border-color: gray;
+  cursor: not-allowed;
+}
+
+.disabled-button:hover {
+  background-color: gray;
 }

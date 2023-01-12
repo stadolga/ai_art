@@ -6,14 +6,15 @@ import { useDispatch } from 'react-redux';
 import fetchApi from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
-import { ImageCompressor } from 'image-compressor';
+import { setUndo,addUndo } from './reducers/undoReducer';
+import { useSelector } from 'react-redux';
 
 const CanvasContext = React.createContext();
 
 export function CanvasProvider({ children }) {
   const [isDrawing, setIsDrawing] = useState(false);
   const [color, setColor] = useState({
-    r: 1, g: 1, b: 1, a: 1,
+    r: 2, g: 1, b: 1, a: 1,
   });
   const [brush, setBrush] = useState(5);
   const canvasRef = useRef(null);
@@ -22,23 +23,32 @@ export function CanvasProvider({ children }) {
   let oldColor = {
     r: 1, g: 1, b: 1, a: 1,
   };
+  const [cPushArray, setCPushArray] = useState([]);
+const [cStep, setCStep] = useState(-2);
+
+  const undoList = useSelector(state => state.undo)
 
   useEffect(() => {
     contextRef.current.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
 
-  useEffect(() => { //Mobile functionality
-    const canvas = canvasRef.current;
-    canvas.addEventListener('touchstart', startDrawing);
-    canvas.addEventListener('touchmove', draw);
-    canvas.addEventListener('touchend', finishDrawing);
-    return () => {
-      canvas.removeEventListener('touchstart', startDrawing);
-      canvas.removeEventListener('touchmove', draw);
-      canvas.removeEventListener('touchend', finishDrawing);
-    };
-  }, []);
+  const cPush = () => {
+    setCStep(cStep + 1);
+    if (cStep < cPushArray.length) { setCPushArray(cPushArray.slice(0, cStep)); }
+    setCPushArray([...cPushArray, canvasRef.current.toDataURL()]);
+    }
+    
+    const cUndo = () => {
+    if (cStep === 0) {clearCanvas(); return;}
+    setCStep(cStep - 2);
+    contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    let image = new Image();
+    image.src = cPushArray[cStep];
+    image.onload = function() {
+      contextRef.current.drawImage(this, 0, 0);
+      };
+    }
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current;
@@ -55,18 +65,20 @@ export function CanvasProvider({ children }) {
 
   const startDrawing = (event) => {
     event.preventDefault();
-    let x, y;
-    if ('ontouchstart' in window) {
-      x = event.touches[0].clientX * 1.5;
-      y = event.touches[0].clientY * 1.5;
-      console.log(x,y)
-    } else {
-      x = event.nativeEvent.offsetX * 1.5;
-      y = event.nativeEvent.offsetY * 1.5;
-    }
+    cPush();
+    const x = event.nativeEvent.offsetX * 1.5;
+    const y = event.nativeEvent.offsetY * 1.5;
     if (contextRef.current === null) return;
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
+
+    const currentDrawing = {
+      color: color,
+      brush: brush,
+      x: x,
+      y: y
+      }
+    dispatch(addUndo(currentDrawing))
     setIsDrawing(true);
   };
 
@@ -75,47 +87,57 @@ export function CanvasProvider({ children }) {
     if (!isDrawing) {
       return;
     }
-    let x, y;
-    if ('ontouchstart' in window) {
-      x = event.touches[0].clientX * 1.5;
-      y = event.touches[0].clientY * 1.5;
-    } else {
-      x = event.nativeEvent.offsetX * 1.5;
-      y = event.nativeEvent.offsetY * 1.5;
-    }
+    const x = event.nativeEvent.offsetX * 1.5;
+    const y = event.nativeEvent.offsetY * 1.5;
     contextRef.current.lineTo(x, y);
     contextRef.current.stroke();
   };
 
-  const finishDrawing = () => {
+  const finishDrawing = (event) => {
+    const x = event.nativeEvent.offsetX * 1.5;
+    const y = event.nativeEvent.offsetY * 1.5;
+    cPush();
+    const currentDrawing = {
+      color: color,
+      brush: brush,
+      x: x,
+      y: y
+      }
+    dispatch(addUndo(currentDrawing))
     contextRef.current.closePath();
     setIsDrawing(false);
   };
 
   const clearCanvas = () => {
     dispatch(updateResponse(''));
+    setUndo([])
+    setCPushArray([])
+    setCStep(-2)
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
   };
+	
 
   async function CanvasToAI() {
     const canvas = canvasRef.current;
-    const img = canvas.toDataURL('image/png');
-    const options = {
-        quality: 0.1
-    }
-    const compressor = new ImageCompressor();
-    const compressedImg = await compressor.compress(img, options);
-    dispatch(updateResponse('Analyzing...'));
-    fetchApi(compressedImg).then((res) => {
+    const imgData = canvas.toDataURL('image/png');
+
+    dispatch(updateResponse('Analyzing...')); //get response
+    fetchApi(imgData)
+    .then((res) => {
+      console.log(res)
       dispatch(updateResponse(res));
-    });
-}
+    })
+    .catch((e =>{
+      dispatch(updateResponse("Error! Please try again."))
+    }))
+  }
 
 
   class ColorPicker extends React.Component {
+    
     handleChangeComplete = (color) => {
       setColor(color.rgb);
     };
@@ -126,7 +148,6 @@ export function CanvasProvider({ children }) {
     };
 
     handleCancel = () => {
-      setColor(oldColor);
       dispatch(updateVisible(false));
     };
 
@@ -155,6 +176,8 @@ export function CanvasProvider({ children }) {
         CanvasToAI,
         ColorPicker,
         setBrush,
+        undo,
+        cUndo
       }}
     >
       {children}
