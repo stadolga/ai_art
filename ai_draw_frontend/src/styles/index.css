@@ -1,0 +1,97 @@
+body{
+  background-color: lightgray
+}
+.center {
+  position: relative;
+}
+.canvas {
+  width: 80%;
+  height: 80%;
+  margin: auto;
+  position: relative;
+}
+
+.controls > .center {
+  position: absolute;
+  left: 0; 
+  bottom: 0; 
+}
+
+.controls-container {
+  background: rgb(108,211,212);
+  background: linear-gradient(8deg, rgba(108,211,212,1) 0%, rgba(253,187,45,1) 94%);
+  border: 1px solid #ccc;
+  border-radius: 2em;
+  padding: 10px;
+  display: flex;
+  flex-direction: column;
+}
+
+.buttons, .sliders {
+  width: 100%;
+}
+
+.container-fluid {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 100vh;
+}
+
+.modal {
+  position: absolute;
+  z-index: 2;
+}
+
+.canvasStyle{
+  border: 1px solid black;
+  background: white;
+  border-radius: 2em;
+}
+
+.colorPicker {
+  display: flex;
+  align-items: center;
+}
+
+.modal {
+  position: fixed !important; 
+  z-index: 1 !important;
+  left: 0 !important;
+  top: 0 !important;
+  width: 100% !important; 
+  height: 100% !important; 
+  overflow: auto !important;
+  background-color: rgb(0,0,0) !important; 
+  background-color: rgba(0,0,0,0.4) !important; 
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+.box-container {
+  width: 200px; 
+  height: 100px; 
+  border: 1px solid black; 
+  position: absolute;
+  top: 20px; 
+  right: 20px; 
+  display: flex; 
+  align-items: center; 
+  justify-content: center; 
+  padding: 10px;
+}
+
+.text-box {
+  font-family:'Roboto',sans-serif;
+  font-weight:300;
+  border-radius: 2em;
+  width: calc(100% - 200px); 
+  height: calc(100% - 26px);
+  background-color: white; 
+  position:absolute;
+  left: 190px;
+  padding: 10px;
+  border: 1px solid black;
+  overflow-y: scroll;
+}

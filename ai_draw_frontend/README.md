@@ -1,0 +1,1 @@
+https://aiartcritic.fly.dev/
