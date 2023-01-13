@@ -116,10 +116,11 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
   const cUndo = () => { //Undo, loads picture from array and puts it to canvas
     if(firstUndo && cStep !== -1) {setFirstUndo(false)} //Very very dirty solution to fix a bug where the first undo doesn't work.
     if (!firstUndo && cStep === -1) {clearCanvas(); return;} //reset screen when undo first element
+    if(cPushArray[cStep] === undefined) return; //when initializing there is sometimes problem that this fixes
   
     setCStep(cStep -1);
     contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
+    
     let image = new Image();
     image.src = cPushArray[cStep];
     image.onload = function() {

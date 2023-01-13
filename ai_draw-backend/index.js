@@ -9,11 +9,11 @@ const config = require('./config');
 
 app.use(express.json())
 app.use(cors())
-app.use(express.static(path.join(__dirname,'/build')));
+app.use(express.static(path.join(__dirname, 'build')));
 app.use((err, req, res, next) => { console.log(err); res.status(500).send('Something went wrong'); });
 
-app.get('/', function (req, res, next) {
-    res.sendFile(path.resolve('build/index.html'));
+app.get('/', (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
 });
 
 app.post('/predict', async (req, res) => {
@@ -39,7 +39,6 @@ app.post('/predict', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
-        console.log(getResponse.data)
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
           headers: {
@@ -57,7 +56,6 @@ app.post('/predict', async (req, res) => {
 
 app.post('/getImage', async (req, res) => {
   try {
-    console.log(req.body.prompt)
     const data = {
       version: 'f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1',
       input: {
@@ -82,7 +80,6 @@ app.post('/getImage', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
-        console.log(getResponse.data)
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
           headers: {
