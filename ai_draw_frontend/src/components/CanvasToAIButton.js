@@ -4,5 +4,5 @@ import { useCanvas } from '../CanvasContext';
 export function CanvasToAIButton() {
   const { CanvasToAI } = useCanvas();
 
-  return <button className="submitButton" onClick={CanvasToAI}>submit</button>;
+  return <button className="submitButton" onClick={CanvasToAI}>Submit</button>;
 }

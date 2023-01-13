@@ -40,23 +40,63 @@ app.post('/predict', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
-      try {
+        console.log(getResponse.data)
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
           headers: {
             Authorization: `Token ${config.API_KEY}`,
           },
         });
-      } catch (error) {
-        console.log(error);
-      }
     }
+
     res.send(getResponse.data.output);
   } catch (error) {
     console.error(error);
-    res.send(error);
+    res.send(error)
   }
 });
+
+app.post('/getImage', async (req, res) => {
+  try {
+    const data = {
+      version: 'f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1',
+      input: {
+        prompt: req.body.prompt,
+        width: 512,
+        height: 512,
+        num_inference_steps: 50,
+      },
+    };
+    const response = await axios.post('https://api.replicate.com/v1/predictions', data, {
+      headers: {
+        Authorization: `Token ${config.API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+    });
+
+    let getResponse = await axios.get(response.data.urls.get, {
+      headers: {
+        Authorization: `Token ${config.API_KEY}`,
+      },
+    });
+
+    while (getResponse.data.completed_at === null) { // fetching until getting the correct json
+        console.log(getResponse.data)
+        await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
+        getResponse = await axios.get(response.data.urls.get, {
+          headers: {
+            Authorization: `Token ${config.API_KEY}`,
+          },
+        });
+    }
+
+    res.send(getResponse.data.output);
+  } catch (error) {
+    console.error(error);
+    res.send(error)
+  }
+});
+
 
 const PORT = process.env.PORT || 8080
 app.listen(PORT, () => {

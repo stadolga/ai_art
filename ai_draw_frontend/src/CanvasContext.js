@@ -3,7 +3,7 @@ import React, {
 } from 'react';
 import { PhotoshopPicker } from 'react-color';
 import { useDispatch } from 'react-redux';
-import fetchApi from './services/apiService';
+import {predictWithServer} from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
 
@@ -118,7 +118,7 @@ export function CanvasProvider({ children }) {
       seconds++;
       dispatch(updateResponse(`Analyzing... (Time elapsed: ${seconds}s)`));
     }, 1000);
-      fetchApi(imgData)
+      predictWithServer(imgData)
         .then((res) => {
           clearInterval(intervalId);
           console.log(res);

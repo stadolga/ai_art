@@ -1,9 +1,9 @@
 import axios from 'axios';
-const baseUrl = 'http://localhost:8080/predict'
+const baseUrl = 'http://localhost:8080'
 
 const predictWithServer = async (picture) => {
   try {
-    const response = await axios.post(baseUrl, {
+    const response = await axios.post(baseUrl+"/predict", {
       image: picture,
     });
     
@@ -14,4 +14,17 @@ const predictWithServer = async (picture) => {
   }
 };
 
-export default (predictWithServer);
+const getStableDiffusionImage = async (prompt) => {
+  try {
+    const response = await axios.post(baseUrl+"/getImage", {
+      prompt: prompt,
+    });
+    if(typeof(response.data[0]) !== "string") throw new Error
+    return response.data[0];
+  } catch (error) {
+    console.error(error);
+  }
+};
+
+
+export {predictWithServer, getStableDiffusionImage}

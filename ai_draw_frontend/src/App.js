@@ -2,11 +2,12 @@ import { Canvas } from './components/Canvas';
 import { ClearCanvasButton } from './components/ClearCanvasButton';
 import { CanvasToAIButton } from './components/CanvasToAIButton';
 import { UndoButton } from './components/UndoButton';
-import { AiVariationButton } from './components/AiVariationButton';
+import { StableDiffusionButton } from './components/StableDiffusionButton';
 import { ColorPicker } from './components/ColorPicker';
 import { Slider } from './components/Slider';
 import { ResponseField } from './components/responseField';
 import { ToolTipComponent } from './components/Tooltip';
+import {ImageComponent} from './components/ImageComponent'
 import Togglable from './components/Togglable';
 import Header from './components/Header';
 
@@ -14,7 +15,7 @@ function Controls() {
   return (
     <div className="controls">
       <div className="buttons">
-        <AiVariationButton/>
+        <StableDiffusionButton/>
         <ClearCanvasButton />
         <UndoButton/><br/>
         <CanvasToAIButton />
@@ -30,6 +31,7 @@ function App() {
   return (
     <div className="container-fluid">
       <Header />
+      <ImageComponent/>
       <div className="canvasContainer">
         <Canvas className="canvas" />
         <ToolTipComponent/>

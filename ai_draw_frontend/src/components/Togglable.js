@@ -14,7 +14,7 @@ function Togglable(props) {
     <>
       <div>
         <button id="view" onClick={toggleVisibility} className="button1">
-          show colorpicker
+          Change color
         </button>
       </div>
       {visible
