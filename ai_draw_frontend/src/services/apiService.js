@@ -1,8 +1,11 @@
 import axios from 'axios';
+var instance = axios.create({
+  timeout: 1000,
+});
 
 const predictWithServer = async (picture) => {
   try {
-    const response = await axios.post("/predict", {
+    const response = await instance.post("/predict", {
       image: picture,
     });
     
@@ -15,7 +18,7 @@ const predictWithServer = async (picture) => {
 
 const getStableDiffusionImage = async (prompt) => {
   try {
-    const response = await axios.post("/getImage", {
+    const response = await instance.post("/getImage", {
       prompt: prompt,
     });
     if(typeof(response.data[0]) !== "string") throw new Error //if doesn't return a link
