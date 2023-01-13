@@ -8,6 +8,7 @@ import { Slider } from './components/Slider';
 import { ResponseField } from './components/responseField';
 import { ToolTipComponent } from './components/Tooltip';
 import {ImageComponent} from './components/ImageComponent'
+import { ErrorField } from './components/ErrorField';
 import Togglable from './components/Togglable';
 import Header from './components/Header';
 
@@ -42,6 +43,7 @@ function App() {
             </Togglable>
             <Controls />
             <div className="text-box">
+              <ErrorField/>
               <ResponseField />
             </div>
           </div>

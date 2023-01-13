@@ -22,7 +22,6 @@ app.post('/predict', async (req, res) => {
       version: 'a4a8bafd6089e1716b06057c42b19378250d008b80fe87caa5cd36d40c1eda90',
       input: {
         image: req.body.image,
-        clip_model_name: 'ViT-L-14/openai',
         mode: 'fast',
       },
     };
@@ -58,13 +57,15 @@ app.post('/predict', async (req, res) => {
 
 app.post('/getImage', async (req, res) => {
   try {
+    console.log(req.body.prompt)
     const data = {
       version: 'f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1',
       input: {
-        prompt: req.body.prompt,
+        prompt: req.body.prompt ,
+        negative_prompt: "an airplane flying through the night sky with the moon in the background",
         width: 512,
         height: 512,
-        num_inference_steps: 50,
+        num_inference_steps: 20,
       },
     };
     const response = await axios.post('https://api.replicate.com/v1/predictions', data, {

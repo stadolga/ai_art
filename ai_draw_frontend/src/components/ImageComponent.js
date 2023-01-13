@@ -17,7 +17,7 @@ function ImageComponent() {
       <img src={imageLink} alt="Uploaded Image" />
       <div className='result-box'>
         <label className="ai-text">{aiText}</label>
-        <button class="button1" onClick={handleClose}>OK</button>
+        <button className="button1" onClick={handleClose}>OK</button>
       </div>
     </div>
   )

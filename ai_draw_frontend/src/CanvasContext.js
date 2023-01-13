@@ -6,6 +6,7 @@ import { useDispatch } from 'react-redux';
 import {predictWithServer} from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
+import { updateError } from './reducers/errorReducer';
 
 const CanvasContext = React.createContext();
 
@@ -26,14 +27,12 @@ export function CanvasProvider({ children }) {
   const [firstUndo,setFirstUndo] = useState(true)
   useEffect(() => cUndo(),[firstUndo])
 
-  
-
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const dispatch = useDispatch();
 
 
-  useEffect(() => {
+  useEffect(() => { //set style
     contextRef.current.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
@@ -42,7 +41,7 @@ export function CanvasProvider({ children }) {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    canvas.style.width = `${window.innerWidth / 1.6}px`;
+    canvas.style.width = `${window.innerWidth / 1.3}px`;
     canvas.style.height = `${window.innerHeight / 1.6}px`;
 
     const context = canvas.getContext('2d');
@@ -53,7 +52,7 @@ export function CanvasProvider({ children }) {
 
   const startDrawing = (event) => {
     event.preventDefault();
-    const x = event.nativeEvent.offsetX * 1.6;
+    const x = event.nativeEvent.offsetX * 1.3;
     const y = event.nativeEvent.offsetY * 1.6;
     if (contextRef.current === null) return;
     contextRef.current.beginPath();
@@ -66,7 +65,7 @@ export function CanvasProvider({ children }) {
     if (!isDrawing) {
       return;
     }
-    const x = event.nativeEvent.offsetX * 1.6;
+    const x = event.nativeEvent.offsetX * 1.3;
     const y = event.nativeEvent.offsetY * 1.6;
     contextRef.current.lineTo(x, y);
     contextRef.current.stroke();
@@ -81,6 +80,7 @@ export function CanvasProvider({ children }) {
 
   const clearCanvas = () => {
     dispatch(updateResponse(''));
+    dispatch(updateError(''));
     setCPushArray([])
     setCStep(-1)
     setFirstUndo(true)
@@ -116,17 +116,17 @@ export function CanvasProvider({ children }) {
     const imgData = canvas.toDataURL('image/png');
     const intervalId = setInterval(() => {
       seconds++;
-      dispatch(updateResponse(`Analyzing... (Time elapsed: ${seconds}s)`));
+      dispatch(updateError(`Analyzing... (Time elapsed: ${seconds}s)`));
     }, 1000);
       predictWithServer(imgData)
         .then((res) => {
           clearInterval(intervalId);
-          console.log(res);
           dispatch(updateResponse(res));
+          dispatch(updateError(""))
         })
         .catch((e) => {
           clearInterval(intervalId);
-          dispatch(updateResponse("Error! Please try again."));
+          dispatch(updateError("Error! Please try again."));
         });
     }
     
