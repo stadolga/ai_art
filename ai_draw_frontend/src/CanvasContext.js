@@ -10,7 +10,7 @@ import { updateError } from './reducers/errorReducer';
 
 const CanvasContext = React.createContext();
 
-export function CanvasProvider({ children }) {
+export function CanvasProvider({ children }) { //Basically the main logic element of frontend, handles canvas and some button functionality
   const [isDrawing, setIsDrawing] = useState(false);
 
   const [color, setColor] = useState({
@@ -24,7 +24,7 @@ export function CanvasProvider({ children }) {
   const [brush, setBrush] = useState(5);
   const [cPushArray, setCPushArray] = useState([]); //Storing undo images
   const [cStep, setCStep] = useState(-1); //storing undo steps
-  const [firstUndo,setFirstUndo] = useState(true)
+  const [firstUndo,setFirstUndo] = useState(true) //for fixing a glitch where first undo doesn't work
   useEffect(() => cUndo(),[firstUndo])
 
   const canvasRef = useRef(null);
@@ -44,6 +44,11 @@ export function CanvasProvider({ children }) {
     canvas.style.width = `${window.innerWidth / 1.3}px`;
     canvas.style.height = `${window.innerHeight / 1.6}px`;
 
+    //Mobile functionality
+    canvasRef.current.addEventListener("touchstart", startDrawing, { passive: false });
+    canvasRef.current.addEventListener("touchmove", draw, { passive: false });
+    canvasRef.current.addEventListener("touchend", finishDrawing, { passive: false });
+
     const context = canvas.getContext('2d');
     context.lineCap = 'round';
     contextRef.current = context;
@@ -51,9 +56,15 @@ export function CanvasProvider({ children }) {
 
 
   const startDrawing = (event) => {
-    event.preventDefault();
-    const x = event.nativeEvent.offsetX * 1.3;
-    const y = event.nativeEvent.offsetY * 1.6;
+    event.returnValue = false
+    let x, y;
+    if (event.touches) {
+      x = event.touches[0].clientX;
+      y = event.touches[0].clientY * 1.6;
+    } else {
+      x = event.nativeEvent.offsetX * 1.3;
+      y = event.nativeEvent.offsetY * 1.6;
+    }
     if (contextRef.current === null) return;
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
@@ -61,26 +72,32 @@ export function CanvasProvider({ children }) {
   };
 
   const draw = (event) => {
-    event.preventDefault();
+    event.returnValue = false
     if (!isDrawing) {
       return;
     }
-    const x = event.nativeEvent.offsetX * 1.3;
-    const y = event.nativeEvent.offsetY * 1.6;
+    let x, y;
+    if (event.touches) {
+      x = event.touches[0].clientX;
+      y = event.touches[0].clientY * 1.6;
+    } else {
+      x = event.nativeEvent.offsetX * 1.3;
+      y = event.nativeEvent.offsetY * 1.6;
+    }
     contextRef.current.lineTo(x, y);
     contextRef.current.stroke();
   };
 
-  const finishDrawing = () => {
-    console.log("here")
+  const finishDrawing = (event) => {
+    event.returnValue = false
     cPush()
     contextRef.current.closePath();
     setIsDrawing(false);
   };
 
   const clearCanvas = () => {
-    dispatch(updateResponse(''));
-    dispatch(updateError(''));
+    dispatch(updateResponse('')); //Analysis/message emptied
+    dispatch(updateError('')); //same with errors
     setCPushArray([])
     setCStep(-1)
     setFirstUndo(true)
@@ -92,7 +109,6 @@ export function CanvasProvider({ children }) {
 
   const cPush = () => { //saves image to arr
     setCStep(cStep + 1);
-    console.log(cStep, cPushArray.length)
     if (cStep < cPushArray.length) { setCPushArray(cPushArray.slice(1, cStep)); }
     setCPushArray([...cPushArray, canvasRef.current.toDataURL()]);
     }
@@ -100,9 +116,10 @@ export function CanvasProvider({ children }) {
   const cUndo = () => { //Undo, loads picture from array and puts it to canvas
     if(firstUndo && cStep !== -1) {setFirstUndo(false)} //Very very dirty solution to fix a bug where the first undo doesn't work.
     if (!firstUndo && cStep === -1) {clearCanvas(); return;} //reset screen when undo first element
-    
+  
     setCStep(cStep -1);
     contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+
     let image = new Image();
     image.src = cPushArray[cStep];
     image.onload = function() {
@@ -110,14 +127,16 @@ export function CanvasProvider({ children }) {
       };
     }
 
-  async function CanvasToAI() {
+  async function CanvasToAI() { //loads the ai text prompt
     let seconds = 0;
     const canvas = canvasRef.current;
     const imgData = canvas.toDataURL('image/png');
+    
     const intervalId = setInterval(() => {
       seconds++;
       dispatch(updateError(`Analyzing... (Time elapsed: ${seconds}s)`));
     }, 1000);
+
       predictWithServer(imgData)
         .then((res) => {
           clearInterval(intervalId);

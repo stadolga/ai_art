@@ -8,6 +8,9 @@ import './styles/index.css';
 import './styles/buttons.css';
 import './styles/slider.css';
 
+import 'core-js/stable/index.js'
+import 'regenerator-runtime/runtime.js'
+
 ReactDOM.createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <Provider store={store}>

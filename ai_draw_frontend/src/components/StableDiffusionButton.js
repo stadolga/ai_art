@@ -22,11 +22,13 @@ export function StableDiffusionButton() {
 
   const handleSubmission = () => {
     let seconds = 0;
-    const intervalId = setInterval(() => {
+
+    const intervalId = setInterval(() => { //creates a counter
         seconds++;
         dispatch(updateError(`Creating the image... (Time elapsed: ${seconds}s)`));
     }, 1000);
     setIntervalId(intervalId);
+    
     getStableDiffusionImage(aiText)
         .then((response) => {
             clearInterval(intervalId);

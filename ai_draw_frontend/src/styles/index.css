@@ -38,11 +38,6 @@ body{
   height: 100vh;
 }
 
-.modal {
-  position: absolute;
-  z-index: 2;
-}
-
 .canvasStyle{
   border: 1px solid black;
   background: white;
@@ -94,19 +89,6 @@ body{
   padding: 10px;
   border: 1px solid black;
   overflow-y: scroll;
-}
-
-.infoButton{
-  display:block;
-  height: 30px;
-  width: 30px;
-  border-radius: 50%;
-  border: 1px solid black;
-}
-
-.button1{
-  margin: auto;
-  width: 170px !important;
 }
 
 .aiDiv{

@@ -1,14 +1,18 @@
 import { Canvas } from './components/Canvas';
+import { ColorPicker } from './components/ColorPicker';
+import { ToolTipComponent } from './components/Tooltip';
+import {ImageComponent} from './components/ImageComponent'
+
 import { ClearCanvasButton } from './components/ClearCanvasButton';
 import { CanvasToAIButton } from './components/CanvasToAIButton';
 import { UndoButton } from './components/UndoButton';
 import { StableDiffusionButton } from './components/StableDiffusionButton';
-import { ColorPicker } from './components/ColorPicker';
 import { Slider } from './components/Slider';
+
 import { ResponseField } from './components/responseField';
-import { ToolTipComponent } from './components/Tooltip';
-import {ImageComponent} from './components/ImageComponent'
 import { ErrorField } from './components/ErrorField';
+
+
 import Togglable from './components/Togglable';
 import Header from './components/Header';
 

@@ -10,7 +10,7 @@ function Togglable(props) {
     dispatch(updateVisible(!visible));
   };
 
-  return (
+  return ( //basically hides colorpicker. Could have been implemented other way too (eg. if(colorPickerChose===false) return null)
     <>
       <div>
         <button id="view" onClick={toggleVisibility} className="button1">
