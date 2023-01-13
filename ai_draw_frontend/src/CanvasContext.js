@@ -6,56 +6,44 @@ import { useDispatch } from 'react-redux';
 import fetchApi from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
-import { setUndo,addUndo } from './reducers/undoReducer';
-import { useSelector } from 'react-redux';
 
 const CanvasContext = React.createContext();
 
 export function CanvasProvider({ children }) {
   const [isDrawing, setIsDrawing] = useState(false);
+
   const [color, setColor] = useState({
     r: 2, g: 1, b: 1, a: 1,
   });
+
+  let oldColor = { //used when canceling colorpicker
+    r: 1, g: 1, b: 1, a: 1,
+  };
+
   const [brush, setBrush] = useState(5);
+  const [cPushArray, setCPushArray] = useState([]); //Storing undo images
+  const [cStep, setCStep] = useState(-1); //storing undo steps
+  const [firstUndo,setFirstUndo] = useState(true)
+  useEffect(() => cUndo(),[firstUndo])
+
+  
+
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
   const dispatch = useDispatch();
-  let oldColor = {
-    r: 1, g: 1, b: 1, a: 1,
-  };
-  const [cPushArray, setCPushArray] = useState([]);
-const [cStep, setCStep] = useState(-2);
 
-  const undoList = useSelector(state => state.undo)
 
   useEffect(() => {
     contextRef.current.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
 
-  const cPush = () => {
-    setCStep(cStep + 1);
-    if (cStep < cPushArray.length) { setCPushArray(cPushArray.slice(0, cStep)); }
-    setCPushArray([...cPushArray, canvasRef.current.toDataURL()]);
-    }
-    
-    const cUndo = () => {
-    if (cStep === 0) {clearCanvas(); return;}
-    setCStep(cStep - 2);
-    contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-    let image = new Image();
-    image.src = cPushArray[cStep];
-    image.onload = function() {
-      contextRef.current.drawImage(this, 0, 0);
-      };
-    }
-
   const prepareCanvas = () => {
     const canvas = canvasRef.current;
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
-    canvas.style.width = `${window.innerWidth / 1.5}px`;
-    canvas.style.height = `${window.innerHeight / 1.5}px`;
+    canvas.style.width = `${window.innerWidth / 1.6}px`;
+    canvas.style.height = `${window.innerHeight / 1.6}px`;
 
     const context = canvas.getContext('2d');
     context.lineCap = 'round';
@@ -65,20 +53,11 @@ const [cStep, setCStep] = useState(-2);
 
   const startDrawing = (event) => {
     event.preventDefault();
-    cPush();
-    const x = event.nativeEvent.offsetX * 1.5;
-    const y = event.nativeEvent.offsetY * 1.5;
+    const x = event.nativeEvent.offsetX * 1.6;
+    const y = event.nativeEvent.offsetY * 1.6;
     if (contextRef.current === null) return;
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
-
-    const currentDrawing = {
-      color: color,
-      brush: brush,
-      x: x,
-      y: y
-      }
-    dispatch(addUndo(currentDrawing))
     setIsDrawing(true);
   };
 
@@ -87,55 +66,70 @@ const [cStep, setCStep] = useState(-2);
     if (!isDrawing) {
       return;
     }
-    const x = event.nativeEvent.offsetX * 1.5;
-    const y = event.nativeEvent.offsetY * 1.5;
+    const x = event.nativeEvent.offsetX * 1.6;
+    const y = event.nativeEvent.offsetY * 1.6;
     contextRef.current.lineTo(x, y);
     contextRef.current.stroke();
   };
 
-  const finishDrawing = (event) => {
-    const x = event.nativeEvent.offsetX * 1.5;
-    const y = event.nativeEvent.offsetY * 1.5;
-    cPush();
-    const currentDrawing = {
-      color: color,
-      brush: brush,
-      x: x,
-      y: y
-      }
-    dispatch(addUndo(currentDrawing))
+  const finishDrawing = () => {
+    console.log("here")
+    cPush()
     contextRef.current.closePath();
     setIsDrawing(false);
   };
 
   const clearCanvas = () => {
     dispatch(updateResponse(''));
-    setUndo([])
     setCPushArray([])
-    setCStep(-2)
+    setCStep(-1)
+    setFirstUndo(true)
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     context.fillStyle = 'white';
     context.fillRect(0, 0, canvas.width, canvas.height);
   };
-	
+
+  const cPush = () => { //saves image to arr
+    setCStep(cStep + 1);
+    console.log(cStep, cPushArray.length)
+    if (cStep < cPushArray.length) { setCPushArray(cPushArray.slice(1, cStep)); }
+    setCPushArray([...cPushArray, canvasRef.current.toDataURL()]);
+    }
+    
+  const cUndo = () => { //Undo, loads picture from array and puts it to canvas
+    if(firstUndo && cStep !== -1) {setFirstUndo(false)} //Very very dirty solution to fix a bug where the first undo doesn't work.
+    if (!firstUndo && cStep === -1) {clearCanvas(); return;} //reset screen when undo first element
+    
+    setCStep(cStep -1);
+    contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
+    let image = new Image();
+    image.src = cPushArray[cStep];
+    image.onload = function() {
+      contextRef.current.drawImage(this, 0, 0);
+      };
+    }
 
   async function CanvasToAI() {
+    let seconds = 0;
     const canvas = canvasRef.current;
     const imgData = canvas.toDataURL('image/png');
-
-    dispatch(updateResponse('Analyzing...')); //get response
-    fetchApi(imgData)
-    .then((res) => {
-      console.log(res)
-      dispatch(updateResponse(res));
-    })
-    .catch((e =>{
-      dispatch(updateResponse("Error! Please try again."))
-    }))
-  }
-
-
+    const intervalId = setInterval(() => {
+      seconds++;
+      dispatch(updateResponse(`Analyzing... (Time elapsed: ${seconds}s)`));
+    }, 1000);
+      fetchApi(imgData)
+        .then((res) => {
+          clearInterval(intervalId);
+          console.log(res);
+          dispatch(updateResponse(res));
+        })
+        .catch((e) => {
+          clearInterval(intervalId);
+          dispatch(updateResponse("Error! Please try again."));
+        });
+    }
+    
   class ColorPicker extends React.Component {
     
     handleChangeComplete = (color) => {
@@ -144,7 +138,7 @@ const [cStep, setCStep] = useState(-2);
 
     handleAccept = () => {
       oldColor = color;
-      dispatch(updateVisible(false));
+      dispatch(updateVisible(false)); //Control togglable buttons
     };
 
     handleCancel = () => {
@@ -176,7 +170,6 @@ const [cStep, setCStep] = useState(-2);
         CanvasToAI,
         ColorPicker,
         setBrush,
-        undo,
         cUndo
       }}
     >

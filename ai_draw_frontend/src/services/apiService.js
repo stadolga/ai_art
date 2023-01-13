@@ -6,7 +6,8 @@ const predictWithServer = async (picture) => {
     const response = await axios.post(baseUrl, {
       image: picture,
     });
-    if(typeof(response.data) !== "String") throw new Error
+    
+    if(typeof(response.data) !== "string") throw new Error
     return response.data;
   } catch (error) {
     console.error(error);

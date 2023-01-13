@@ -12,8 +12,8 @@ const ToolTipComponent = () => {
                     <label>You can undo your latest line by pressing undo.</label>
                     <p>Slider changes the size of the brush, colorpicker changes the color.</p>
 
-                    <label>Press submit to get the AI analysis of your drawing, press reset to reset the canvas.</label>
-                    <label>Press create variations to get Stable Diffusion-generated version of your drawing. You must get the AI analysis first to use this feature.</label>
+                    <label>Press "submit" to get the AI analysis of your drawing, press "reset" to reset the canvas.</label>
+                    <label>Press "Send to Stable Diffusion" to get Stable Diffusion-generated version of your drawing. You must submit first to use this feature.</label>
                 </div>
             )}
         </div>

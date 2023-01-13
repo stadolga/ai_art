@@ -15,6 +15,6 @@ export function AiVariationButton() {
   }
 
   const { clearCanvas } = useCanvas();
-  return   <button ref={button} className={`button1 ${bool ? "disabled-button" : ""}`} onClick={clearCanvas} disabled={bool}>create variations</button>;
+  return   <button ref={button} className={`button1 ${bool ? "disabled-button" : ""}`} onClick={clearCanvas} disabled={bool}>Send to Stable Diffusion</button>;
 
 }

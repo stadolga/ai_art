@@ -1,5 +1,5 @@
 .button1{
-font-size: medium;
+font-size: 15px;
 display:inline-block;
     padding:0.1em 0.8em;
 border:0.1em solid #FFFFFF;
@@ -25,7 +25,7 @@ margin:0.4em auto;
 }
 
 .submitButton{
-font-size: medium;
+font-size: 15px;
 width: 170px;
 display:inline-block;
 padding:0.1em 0.8em;
@@ -41,7 +41,7 @@ text-align:center;
 transition: all 0.2s;
 }
 .submitButton:hover{
-color:gray;
+color:white;
 background-color:lightgreen;
 }
 @media all and (max-width:30em){
@@ -52,7 +52,7 @@ margin:0.4em auto;
 }
 
 .resetButton{
-  font-size: medium;
+  font-size: 15px;
   width: 85px;
   display:inline-block;
   padding:0.1em 0.8em;
@@ -69,7 +69,7 @@ margin:0.4em auto;
   transition: all 0.2s;
 }
 .resetButton:hover{
-  color:gray;
+  color:white;
   background-color:red;
 }
 @media all and (max-width:30em){
@@ -96,7 +96,7 @@ margin:0.4em auto;
 }
 
 .undoButton{
-  font-size: medium;
+  font-size: 15px;
   width: 85px;
   display:inline-block;
   padding:0.1em 0.8em;
@@ -113,8 +113,8 @@ margin:0.4em auto;
   transition: all 0.2s;
 }
 .undoButton:hover{
-  color:gray;
-  background-color:yellow;
+  color:white;
+  background-color:orange;
 }
 @media all and (max-width:30em){
   a.undoButton{
