@@ -1,6 +1,6 @@
 import axios from 'axios';
 var instance = axios.create({
-  timeout: 1000,
+  timeout: 200000, //it is expected that calls don't take more than 200 seconds
 });
 
 const predictWithServer = async (picture) => {
