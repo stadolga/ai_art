@@ -39,6 +39,7 @@ app.post('/predict', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
+      console.log(getResponse.data)
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
           headers: {
@@ -46,7 +47,7 @@ app.post('/predict', async (req, res) => {
           },
         });
     }
-
+    console.log(getResponse)
     res.send(getResponse.data.output);
   } catch (error) {
     console.error(error);

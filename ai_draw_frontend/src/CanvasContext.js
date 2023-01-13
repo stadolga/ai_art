@@ -7,6 +7,7 @@ import {predictWithServer} from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
 import { updateError } from './reducers/errorReducer';
+import Compressor from 'compressorjs';
 
 const CanvasContext = React.createContext();
 
@@ -36,6 +37,29 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     contextRef.current.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
+
+  function blobToBase64(blob) {
+    return new Promise((resolve, _) => {
+      const reader = new FileReader();
+      reader.onloadend = () => resolve(reader.result);
+      reader.readAsDataURL(blob);
+    });
+  }
+
+  function dataURLtoFile(dataurl, filename) {
+ 
+    var arr = dataurl.split(','),
+        mime = arr[0].match(/:(.*?);/)[1],
+        bstr = atob(arr[1]), 
+        n = bstr.length, 
+        u8arr = new Uint8Array(n);
+        
+    while(n--){
+        u8arr[n] = bstr.charCodeAt(n);
+    }
+    
+    return new File([u8arr], filename, {type:mime});
+}
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current;
@@ -131,23 +155,39 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
   async function CanvasToAI() { //loads the ai text prompt
     let seconds = 0;
     const canvas = canvasRef.current;
-    const imgData = canvas.toDataURL('image/png');
+    const picture = canvas.toDataURL('image/jpeg', 0.9);
+    const file = dataURLtoFile(picture, 'file.jpeg')
     
     const intervalId = setInterval(() => {
       seconds++;
       dispatch(updateError(`Analyzing... (Time elapsed: ${seconds}s)`));
     }, 1000);
 
-      predictWithServer(imgData)
-        .then((res) => {
-          clearInterval(intervalId);
-          dispatch(updateResponse(res));
-          dispatch(updateError(""))
+    new Compressor(file, {
+      quality: 0.2,  
+      // The compression process is asynchronous,
+      success(result) {
+        blobToBase64(result).then(base64data => {
+    
+          predictWithServer(base64data)
+          .then((res) => {
+            console.log(res)
+            clearInterval(intervalId);
+            dispatch(updateResponse(res));
+            dispatch(updateError(""))
+          })
+          .catch((e) => {
+            console.log(e)
+            clearInterval(intervalId);
+            dispatch(updateError("Error! Please try again."));
+          });
         })
-        .catch((e) => {
-          clearInterval(intervalId);
-          dispatch(updateError("Error! Please try again."));
-        });
+      },
+      error(err) {
+        console.log(err.message);
+      },
+    });
+
     }
     
   class ColorPicker extends React.Component {
