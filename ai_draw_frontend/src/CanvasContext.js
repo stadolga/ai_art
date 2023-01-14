@@ -38,7 +38,7 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
 
-  function blobToBase64(blob) {
+  function blobToBase64(blob) { //turns compresses blob back to 64
     return new Promise((resolve, _) => {
       const reader = new FileReader();
       reader.onloadend = () => resolve(reader.result);
@@ -46,7 +46,7 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     });
   }
 
-  function dataURLtoFile(dataurl, filename) {
+  function dataURLtoFile(dataurl, filename) { //converts picture to blob - compressing
  
     var arr = dataurl.split(','),
         mime = arr[0].match(/:(.*?);/)[1],
@@ -164,14 +164,14 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     }, 1000);
 
     new Compressor(file, {
-      quality: 0.2,  
+      quality: 0, //max amount of compression as drawing are not accurate  
       // The compression process is asynchronous,
       success(result) {
         blobToBase64(result).then(base64data => {
-    
+          console.log(base64data.length, picture.length)
+
           predictWithServer(base64data)
           .then((res) => {
-            console.log(res)
             clearInterval(intervalId);
             dispatch(updateResponse(res));
             dispatch(updateError(""))
