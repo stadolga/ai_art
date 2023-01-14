@@ -7,7 +7,7 @@ import {predictWithServer} from './services/apiService';
 import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
 import { updateError } from './reducers/errorReducer';
-import Compressor from 'compressorjs';
+import imageCompression from 'browser-image-compression';
 
 const CanvasContext = React.createContext();
 
@@ -60,6 +60,8 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     
     return new File([u8arr], filename, {type:mime});
 }
+
+
 
   const prepareCanvas = () => {
     const canvas = canvasRef.current;
@@ -154,38 +156,30 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
 
   async function CanvasToAI() { //loads the ai text prompt
     let seconds = 0;
+
+    const options = {
+      maxSizeMB: 1, //Maximum photo size that api accepts is 1mb
+      maxWidthOrHeight: 1920,
+      useWebWorker: true
+    }
+
     const canvas = canvasRef.current;
-    const picture = canvas.toDataURL('image/png', 0.9);
-    const file = dataURLtoFile(picture, 'file.png')
-    
+    const picture = canvas.toDataURL('image/png', 0.5); //png is only file type that works with AI, only one supported with all browsers
+    const file = dataURLtoFile(picture, 'file.png') //convert image to blob so it can be compressed
+    const compressedFile = await imageCompression(file, options); //compressing, gives a blob back
+    const compressedFileToB64 = await blobToBase64(compressedFile) //turn this blob to a b64 so ai can analyze it
+
     const intervalId = setInterval(() => {
       seconds++;
       dispatch(updateError(`Analyzing... (Time elapsed: ${seconds}s)`));
     }, 1000);
 
-    new Compressor(file, {
-      quality: 0.8, //max amount of compression as drawing are not accurate  
-      // The compression process is asynchronous,
-      success(result) {
-        blobToBase64(result).then(base64data => {
-          predictWithServer(base64data)
+      predictWithServer(compressedFileToB64)
           .then((res) => {
             clearInterval(intervalId);
             dispatch(updateResponse(res));
             dispatch(updateError(""))
-          })
-          .catch((e) => {
-            console.log(e)
-            clearInterval(intervalId);
-            dispatch(updateError("Error! Please try again."));
-          });
-        })
-      },
-      error(err) {
-        console.log(err.message);
-      },
-    });
-
+      })
     }
     
   class ColorPicker extends React.Component {

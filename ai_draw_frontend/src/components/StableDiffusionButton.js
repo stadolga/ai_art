@@ -18,7 +18,10 @@ export function StableDiffusionButton() {
   }, []);
 
 
-  const bool = aiText === "" || (loadingMessages.includes("Creating the image...") || loadingMessages.includes("Analyzing..."))
+  const bool = aiText === "" || aiText.includes("Draw something for the AI to analyze!")  || loadingMessages.includes("Creating the image...")
+   || loadingMessages.includes("Analyzing...")
+   
+   
 
   const handleSubmission = () => {
     let seconds = 0;
