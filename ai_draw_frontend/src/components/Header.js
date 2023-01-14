@@ -5,7 +5,7 @@ function Header() {
     <HelmetProvider>
       <Helmet>
         <style>{'body { background-color: lightcyan; }'}</style>
-        <script src="https://cdn.rawgit.com/magicien/undo-canvas/v0.1.3/undo-canvas.js"></script>
+        <script src="https://cdn.rawgit.com/magicien/undo-canvas/v0.1.3/undo-canvas.js" />
         <title>AI art critic</title>
         <meta charSet="utf-8" />
         <meta name="viewport" content="width=device-width, initial-scale=1" />
@@ -17,7 +17,7 @@ function Header() {
           crossOrigin="anonymous"
         />
       </Helmet>
-     </HelmetProvider>
+    </HelmetProvider>
 
   );
 }

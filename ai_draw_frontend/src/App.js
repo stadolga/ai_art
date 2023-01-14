@@ -1,7 +1,7 @@
 import { Canvas } from './components/Canvas';
 import { ColorPicker } from './components/ColorPicker';
 import { ToolTipComponent } from './components/Tooltip';
-import {ImageComponent} from './components/ImageComponent'
+import { ImageComponent } from './components/ImageComponent';
 
 import { ClearCanvasButton } from './components/ClearCanvasButton';
 import { CanvasToAIButton } from './components/CanvasToAIButton';
@@ -12,7 +12,6 @@ import { Slider } from './components/Slider';
 import { ResponseField } from './components/responseField';
 import { ErrorField } from './components/ErrorField';
 
-
 import Togglable from './components/Togglable';
 import Header from './components/Header';
 
@@ -20,9 +19,10 @@ function Controls() {
   return (
     <div className="controls">
       <div className="buttons">
-        <StableDiffusionButton/>
+        <StableDiffusionButton />
         <ClearCanvasButton />
-        <UndoButton/><br/>
+        <UndoButton />
+        <br />
         <CanvasToAIButton />
       </div>
       <div className="sliders">
@@ -36,10 +36,10 @@ function App() {
   return (
     <div className="container-fluid">
       <Header />
-      <ImageComponent/>
+      <ImageComponent />
       <div className="canvasContainer">
         <Canvas className="canvas" />
-        <ToolTipComponent/>
+        <ToolTipComponent />
         <div className="center">
           <div className="controls-container">
             <Togglable>
@@ -47,7 +47,7 @@ function App() {
             </Togglable>
             <Controls />
             <div className="text-box">
-              <ErrorField/>
+              <ErrorField />
               <ResponseField />
             </div>
           </div>

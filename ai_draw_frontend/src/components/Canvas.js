@@ -16,15 +16,15 @@ export function Canvas() {
 
   return (
     <canvas
-       className="canvasStyle"
-       onMouseDown={startDrawing}
-       onMouseUp={finishDrawing}
-       onMouseMove={draw}
-       onMouseLeave={finishDrawing}
-       onTouchStart={startDrawing} //MOBILE FUNCTIONALITY
-       onTouchEnd={finishDrawing}
-       onTouchMove={draw}
-       ref={canvasRef}
-     />
-    );
+      className="canvasStyle"
+      onMouseDown={startDrawing}
+      onMouseUp={finishDrawing}
+      onMouseMove={draw}
+      onMouseLeave={finishDrawing}
+      onTouchStart={startDrawing} // MOBILE FUNCTIONALITY
+      onTouchEnd={finishDrawing}
+      onTouchMove={draw}
+      ref={canvasRef}
+    />
+  );
 }
