@@ -54,6 +54,11 @@ body{
   align-items: center;
 }
 
+.infoButtonContainer{
+  z-index: 2;
+  pointer-events: auto;
+}
+
 .modal {
   position: fixed !important; 
   z-index: 1 !important;
@@ -94,14 +99,6 @@ body{
   padding: 10px;
   border: 1px solid black;
   overflow-y: auto;
-}
-
-.infoButton{
-  display:block;
-  height: 30px;
-  width: 30px;
-  border-radius: 50%;
-  border: 1px solid black;
 }
 
 .button1{

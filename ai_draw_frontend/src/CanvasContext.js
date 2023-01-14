@@ -25,11 +25,12 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     r: 1, g: 1, b: 1, a: 1,
   };
 
+
+
   const [brush, setBrush] = useState(5);
   const [cPushArray, setCPushArray] = useState([]); // Storing undo images
   const [cStep, setCStep] = useState(-1); // storing undo steps
   const [firstUndo, setFirstUndo] = useState(true); // for fixing a glitch where first undo doesn't work
-  useEffect(() => cUndo(), [firstUndo]);
 
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
@@ -79,8 +80,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
 
   const startDrawing = (event) => {
     event.returnValue = false;
-    let x; let
-      y;
+    let x; let y;
     if (event.touches) {
       x = event.touches[0].clientX;
       y = event.touches[0].clientY * 1.6;
@@ -99,8 +99,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     if (!isDrawing) {
       return;
     }
-    let x; let
-      y;
+    let x; let y;
     if (event.touches) {
       x = event.touches[0].clientX;
       y = event.touches[0].clientY * 1.6;
@@ -114,12 +113,14 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
 
   const finishDrawing = (event) => {
     event.returnValue = false;
-    cPush();
+    console.log(isDrawing)
+    if(isDrawing)cPush();
     contextRef.current.closePath();
     setIsDrawing(false);
   };
 
   const clearCanvas = () => {
+    setFirstUndo(true);
     dispatch(updateResponse('')); // Analysis/message emptied
     dispatch(updateError('')); // same with errors
     setCPushArray([]);
@@ -131,26 +132,27 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     context.fillRect(0, 0, canvas.width, canvas.height);
   };
 
-  const cPush = () => { // saves image to arr
-    setCStep(cStep + 1);
-    if (cStep < cPushArray.length) { setCPushArray(cPushArray.slice(1, cStep)); }
-    setCPushArray([...cPushArray, canvasRef.current.toDataURL()]);
+  const cPush = () => {
+    setCStep(Math.min(cStep + 1, cPushArray.length));
+    setCPushArray([...cPushArray.slice(0, cStep + 1), canvasRef.current.toDataURL()]);
   };
-
-  const cUndo = () => { // Undo, loads picture from array and puts it to canvas
-    if (firstUndo && cStep !== -1) { setFirstUndo(false); } // Very very dirty solution to fix a bug where the first undo doesn't work.
-    if (!firstUndo && cStep === -1) { clearCanvas(); return; } // reset screen when undo first element
-    if (cPushArray[cStep] === undefined) return; // when initializing there is sometimes problem that this fixes
-
-    setCStep(cStep - 1);
-    contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
-
+  
+  const cUndo = () => {
+    console.log(firstUndo)
+    // if(firstUndo) setFirstUndo(false); setCPushArray(cPushArray.slice(0,-1));
+    console.log(cStep)
+    if (cStep < 0) {
+      clearCanvas();
+      return;
+    }
     const image = new Image();
     image.src = cPushArray[cStep];
     image.onload = function () {
+      contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       contextRef.current.drawImage(this, 0, 0);
+      setCStep(cStep - 1);
     };
-  };
+  }
 
   async function CanvasToAI() { // loads the ai text prompt
     dispatch(updateError(''));
@@ -158,9 +160,11 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     let state = 'Initializing';
     const interval = setInterval(() => { // creates a counter
       seconds++;
-      if (state !== undefined) {
+      if(seconds>45){
+        dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(AI is busy, please wait. Time elapsed: ${seconds}s.)`));
+      }else{
         dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(Time elapsed: ${seconds}s)`));
-      } // updates response field
+      }
     }, 1000);
 
     socket.on('prediction', (data) => {
@@ -184,7 +188,16 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
         dispatch(updateError(''));
         dispatch(updateResponse(res));
         clearInterval(interval);
-      });
+      })
+      .catch((error) => {
+        if (error.code === 'ECONNABORTED') {
+          dispatch(updateError("Connection timed out. Please try again."))
+      }else{
+        dispatch(updateError("Error acurred with the server. Please try"))
+      }
+        clearInterval(interval);
+        console.log(error)
+      })
   }
 
   class ColorPicker extends React.Component {

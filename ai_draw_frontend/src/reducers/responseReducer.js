@@ -2,7 +2,7 @@ import { createSlice } from '@reduxjs/toolkit';
 
 const responseSlice = createSlice({
   name: 'response',
-  initialState: 'Draw something for the AI to analyze!',
+  initialState: 'Draw something with mouse or touch on the canvas above for the AI to analyze!',
   reducers: {
     updateResponse: (state, action) => action.payload,
   },

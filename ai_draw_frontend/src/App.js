@@ -19,15 +19,19 @@ function Controls() {
   return (
     <div className="controls">
       <div className="buttons">
-        <StableDiffusionButton />
+      <div className="sliders">
+      <Slider />
+      </div>
+        <Togglable>
+          <ColorPicker />
+        </Togglable>
         <ClearCanvasButton />
         <UndoButton />
         <br />
         <CanvasToAIButton />
+        <StableDiffusionButton />
       </div>
-      <div className="sliders">
-        <Slider />
-      </div>
+
     </div>
   );
 }
@@ -42,9 +46,6 @@ function App() {
         <ToolTipComponent />
         <div className="center">
           <div className="controls-container">
-            <Togglable>
-              <ColorPicker />
-            </Togglable>
             <Controls />
             <div className="text-box">
               <ErrorField />

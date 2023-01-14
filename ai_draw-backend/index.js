@@ -9,7 +9,9 @@ const http = require('http');
 const server = http.createServer(app);
 const axios = require('axios');
 const config = require('./config');
-const io = require('socket.io')(server)
+const io = require("socket.io")(server, {
+  cors: {origin: "*"}
+});
 
 app.use(express.json());
 app.use(cors());
@@ -18,6 +20,9 @@ app.use((err, req, res, next) => { console.log(err); res.status(500).send('Somet
 
 io.on('connection', (client) => {
   console.log(`${client.id} connected`);
+  console.log(`number of clients: ${io.engine.clientsCount}`)
+
+  //jos disconnectaa poistaa sut listasta
 });
 
 app.post('/predict/:socketId', async (req, res) => {

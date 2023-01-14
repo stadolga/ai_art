@@ -138,7 +138,11 @@ a.button1{
 }
 
 .infoButton{
-  display:block;
+  background-color: rgba(253,187,45,1);
+  display:flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2;
   height: 30px;
   width: 30px;
   border-radius: 50%;

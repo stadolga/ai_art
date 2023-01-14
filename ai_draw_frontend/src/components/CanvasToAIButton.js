@@ -7,7 +7,7 @@ export function CanvasToAIButton() {
   const aiText = useSelector((state) => state.response);
   const loadingMessages = useSelector((state) => state.error);
 
-  const bool = (loadingMessages.includes('Creating the image...') || loadingMessages.includes('Analyzing...'));
+  const bool = loadingMessages.includes('Time elapsed:');
 
-  return <button className={`submitButton ${bool ? 'disabled-button' : ''}`} disabled={bool} onClick={CanvasToAI}>Submit</button>;
+  return <button className={`submitButton ${bool ? 'disabled-button' : ''}`} disabled={bool} onClick={CanvasToAI}>Analyze drawing</button>;
 }

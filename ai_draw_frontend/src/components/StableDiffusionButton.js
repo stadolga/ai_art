@@ -11,7 +11,7 @@ export function StableDiffusionButton() {
   const aiText = useSelector((state) => state.response);
   const loadingMessages = useSelector((state) => state.error);
 
-  const bool = aiText === '' || aiText.includes('Draw something for the AI to analyze!') || loadingMessages.includes('Creating the image...')
+  const bool = aiText === '' || aiText.includes('Draw something with mouse or touch on the canvas above for the AI to analyze!') || loadingMessages.includes('Creating the image...')
    || loadingMessages.includes('Analyzing...');
 
   const handleSubmission = () => {
@@ -43,5 +43,5 @@ export function StableDiffusionButton() {
       });
   };
 
-  return <button ref={button} className={`button1 ${bool ? 'disabled-button' : ''}`} onClick={handleSubmission} disabled={bool}>Send to Stable Diffusion</button>;
+  return <button ref={button} className={`submitButton ${bool ? 'disabled-button' : ''}`} onClick={handleSubmission} disabled={bool}>Redraw with AI</button>;
 }
