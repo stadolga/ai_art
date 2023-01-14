@@ -3,9 +3,11 @@ var instance = axios.create({
   timeout: 200000, //it is expected that calls don't take more than 200 seconds
 });
 
+const baseUrl = "http://localhost:8080"
+
 const predictWithServer = async (picture) => {
   try {
-    const response = await instance.post("/predict", {
+    const response = await instance.post(baseUrl+"/predict", {
       image: picture,
     });
     
@@ -18,7 +20,7 @@ const predictWithServer = async (picture) => {
 
 const getStableDiffusionImage = async (prompt) => {
   try {
-    const response = await instance.post("/getImage", {
+    const response = await instance.post(baseUrl+"/getImage", {
       prompt: prompt,
     });
     if(typeof(response.data[0]) !== "string") throw new Error //if doesn't return a link

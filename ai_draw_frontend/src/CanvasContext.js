@@ -155,8 +155,8 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
   async function CanvasToAI() { //loads the ai text prompt
     let seconds = 0;
     const canvas = canvasRef.current;
-    const picture = canvas.toDataURL('image/jpeg', 0.9);
-    const file = dataURLtoFile(picture, 'file.jpeg')
+    const picture = canvas.toDataURL('image/png', 0.9);
+    const file = dataURLtoFile(picture, 'file.png')
     
     const intervalId = setInterval(() => {
       seconds++;
@@ -164,12 +164,10 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     }, 1000);
 
     new Compressor(file, {
-      quality: 0, //max amount of compression as drawing are not accurate  
+      quality: 0.8, //max amount of compression as drawing are not accurate  
       // The compression process is asynchronous,
       success(result) {
         blobToBase64(result).then(base64data => {
-          console.log(base64data.length, picture.length)
-
           predictWithServer(base64data)
           .then((res) => {
             clearInterval(intervalId);
