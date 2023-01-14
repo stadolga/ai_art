@@ -25,8 +25,6 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     r: 1, g: 1, b: 1, a: 1,
   };
 
-
-
   const [brush, setBrush] = useState(5);
   const [cPushArray, setCPushArray] = useState([]); // Storing undo images
   const [cStep, setCStep] = useState(-1); // storing undo steps
@@ -40,6 +38,14 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     contextRef.current.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
+
+  function getMousePos(mouseEvent) {
+    var rect = canvasRef.current.getBoundingClientRect();
+    return {
+      x: mouseEvent.clientX - rect.left,
+      y: mouseEvent.clientY - rect.top
+    };
+  }
 
   function blobToBase64(blob) { // turns compresses blob back to 64
     return new Promise((resolve, _) => {
@@ -68,10 +74,18 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     canvas.style.width = `${window.innerWidth / 1.3}px`;
     canvas.style.height = `${window.innerHeight / 1.6}px`;
 
-    // Mobile functionality
+    //Mobile functionality
     canvasRef.current.addEventListener('touchstart', startDrawing, { passive: false });
     canvasRef.current.addEventListener('touchmove', draw, { passive: false });
-    canvasRef.current.addEventListener('touchend', finishDrawing, { passive: false });
+    canvasRef.current.addEventListener('touchend', cPush(), { passive: false });
+    canvas.addEventListener("touchmove", function (e) {
+      var touch = e.touches[0];
+      var mouseEvent = new MouseEvent("mousemove", {
+        clientX: touch.clientX,
+        clientY: touch.clientY
+      });
+      canvas.dispatchEvent(mouseEvent);
+    }, false);
 
     const context = canvas.getContext('2d');
     context.lineCap = 'round';
@@ -79,13 +93,14 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   };
 
   const startDrawing = (event) => {
+    var rect = canvasRef.current.getBoundingClientRect();
     event.returnValue = false;
     let x; let y;
     if (event.touches) {
-      x = event.touches[0].clientX;
-      y = event.touches[0].clientY * 1.6;
+      x = (event.touches[0].clientX-rect.left)*1.3
+      y = (event.touches[0].clientY-rect.top)*1.6
     } else {
-      x = event.nativeEvent.offsetX * 1.3;
+      x = event.nativeEvent.offsetX*1.3 ;
       y = event.nativeEvent.offsetY * 1.6;
     }
     if (contextRef.current === null) return;
@@ -96,16 +111,17 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   };
 
   const draw = (event) => {
+    var rect = canvasRef.current.getBoundingClientRect();
     event.returnValue = false;
     if (!isDrawing) {
       return;
     }
     let x; let y;
     if (event.touches) {
-      x = event.touches[0].clientX;
-      y = event.touches[0].clientY * 1.6;
+      x = (event.touches[0].clientX-rect.left)*1.3
+      y = (event.touches[0].clientY-rect.top)*1.6
     } else {
-      x = event.nativeEvent.offsetX * 1.3;
+      x = event.nativeEvent.offsetX*1.3 ;
       y = event.nativeEvent.offsetY * 1.6;
     }
     contextRef.current.lineTo(x, y);
