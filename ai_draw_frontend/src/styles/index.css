@@ -124,12 +124,13 @@ body{
 
 .result-box{
   display:flex;
+
+  padding: 10px !important;
   justify-content: center;
   align-items: center;
     font-family:'Roboto',sans-serif;
     font-weight:300;
-    border-radius: 2em;
-    width: calc(100% - 200px); 
+    width: calc(90%); 
     background-color: white; 
     padding: 20px 0;
     border: 1px solid black;
@@ -139,4 +140,9 @@ body{
 .aiDiv > * {
   position: relative;
   margin: 10px; /* add this line */
+}
+
+.photo {
+  max-height: 100%  !important;
+  max-width: 80% !important;
 }

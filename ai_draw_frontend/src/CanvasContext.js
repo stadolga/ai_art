@@ -126,12 +126,10 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   };
 
   const clearCanvas = () => {
-    setFirstUndo(true);
     dispatch(updateResponse('')); // Analysis/message emptied
     dispatch(updateError('')); // same with errors
     setCPushArray([]);
     setCStep(-1);
-
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     context.fillStyle = 'white';
@@ -196,7 +194,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
         if (error.code === 'ECONNABORTED') {
           dispatch(updateError('Connection timed out. Please try again.'));
         } else {
-          dispatch(updateError('Error acurred with the server. Please try'));
+          dispatch(updateError('Error occurred with the server. Please try again.'));
         }
         clearInterval(interval);
         console.log(error);

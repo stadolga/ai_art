@@ -40,6 +40,7 @@ export function StableDiffusionButton() {
       .catch((error) => {
         console.log(error);
         clearInterval(interval);
+        throw (error)
       });
   };
 
