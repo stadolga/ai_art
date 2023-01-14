@@ -8,6 +8,8 @@ import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
 import { updateError } from './reducers/errorReducer';
 import imageCompression from 'browser-image-compression';
+import {socket} from './services/apiService'
+import { capitalizeFirstLetter} from './utils/utils';
 
 const CanvasContext = React.createContext();
 
@@ -156,7 +158,20 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
 
   async function CanvasToAI() { //loads the ai text prompt
     let seconds = 0;
+    const interval = setInterval(() => { //creates a counter
+      seconds++;
+      let state;
+      socket.on('prediction', (data) => { //updates the state from the backend
+        state = data.status
+      });
+      dispatch(updateResponse(capitalizeFirstLetter(state)+"..." + `(Time elapsed: ${seconds})`))
+    }, 1000);
 
+    socket.on('error', (data) => {
+      console.log(data.error, "!!!!!!!");
+      dispatch(updateError(data.error))
+    });
+    
     const options = {
       maxSizeMB: 1, //Maximum photo size that api accepts is 1mb
       maxWidthOrHeight: 1920,
@@ -169,16 +184,11 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     const compressedFile = await imageCompression(file, options); //compressing, gives a blob back
     const compressedFileToB64 = await blobToBase64(compressedFile) //turn this blob to a b64 so ai can analyze it
 
-    const intervalId = setInterval(() => {
-      seconds++;
-      dispatch(updateError(`Analyzing... (Time elapsed: ${seconds}s)`));
-    }, 1000);
-
-      predictWithServer(compressedFileToB64)
-          .then((res) => {
-            clearInterval(intervalId);
-            dispatch(updateResponse(res));
-            dispatch(updateError(""))
+    predictWithServer(compressedFile)
+        .then((res) => {
+          clearInterval(interval);
+          dispatch(updateResponse(res));
+          dispatch(updateError(""))
       })
     }
     

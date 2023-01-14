@@ -4,20 +4,29 @@ const cors = require('cors');
 const path = require('path');
 
 const app = express();
+const http = require("http");
+const server = http.createServer(app);
 const axios = require('axios');
 const config = require('./config');
+const io = require("socket.io")(server, {
+  cors: {
+    origin: "*",
+    methods: ["POST"]
+  }
+});
 
 app.use(express.json())
 app.use(cors())
 app.use(express.static(path.join(__dirname, 'build')));
 app.use((err, req, res, next) => { console.log(err); res.status(500).send('Something went wrong'); });
 
-app.get('/', (req, res) => {
-  res.sendFile(path.join(__dirname, 'index.html'));
-});
+io.on('connection', (socket) => {
+  console.log("connected to socket")
+})
 
 app.post('/predict', async (req, res) => {
   try {
+    console.log("här")
     const data = {
       version: 'a4a8bafd6089e1716b06057c42b19378250d008b80fe87caa5cd36d40c1eda90',
       input: {
@@ -31,6 +40,7 @@ app.post('/predict', async (req, res) => {
         'Content-Type': 'application/json',
       },
     });
+    console.log("här2")
 
     let getResponse = await axios.get(response.data.urls.get, {
       headers: {
@@ -39,7 +49,7 @@ app.post('/predict', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
-      console.log(getResponse.data)
+      io.emit('prediction', getResponse.data); //send data back to frontend
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
           headers: {
@@ -48,6 +58,9 @@ app.post('/predict', async (req, res) => {
         });
     }
     console.log(getResponse)
+    if(getResponse.data.status === "failed"){
+      io.emit('error', getResponse.data)
+    }
     res.send(getResponse.data.output);
   } catch (error) {
     console.error(error);
@@ -81,6 +94,7 @@ app.post('/getImage', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
+        io.emit('getImage', getResponse.data); //send data back to frontend
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
           headers: {
@@ -98,6 +112,6 @@ app.post('/getImage', async (req, res) => {
 
 
 const PORT = process.env.PORT || 8080
-app.listen(PORT, () => {
+server.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`)
 })
