@@ -5,8 +5,7 @@ const instance = axios.create({
   timeout: 200000, // it is expected that calls don't take more than 200 seconds
 });
 
-const baseUrl = 'http://localhost:8080';
-export const socket = io(baseUrl); // every user has unique socket and it's id is passed to backend to identify user
+export const socket = io(); // every user has unique socket and it's id is passed to backend to identify user
 
 window.onbeforeunload = function () { // when the user leaves, disconnect socket
   socket.disconnect();
@@ -14,7 +13,7 @@ window.onbeforeunload = function () { // when the user leaves, disconnect socket
 
 const predictWithServer = async (picture) => {
   try {
-    const response = await instance.post(`${baseUrl}/predict/${socket.id}`, {
+    const response = await instance.post(`/predict/${socket.id}`, {
       image: picture,
     });
 
@@ -27,7 +26,7 @@ const predictWithServer = async (picture) => {
 
 const getStableDiffusionImage = async (prompt) => {
   try {
-    const response = await instance.post(`${baseUrl}/getImage/${socket.id}`, {
+    const response = await instance.post(`/getImage/${socket.id}`, {
       prompt,
     });
 

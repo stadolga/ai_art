@@ -2,14 +2,11 @@ import React, { useState } from 'react';
 
 function ToolTipComponent() {
   const [isOpen, setOpen] = useState(false);
-  const toggleOpen = (e) => {
-    if (e.target.className === 'fa fa-question') {
-      setOpen(!isOpen);
-    }
-  };
+
   return (
     <div>
-      <button className="infoButton" onClick={toggleOpen} onTouchStart={toggleOpen} onTouchEnd={toggleOpen}>
+      <button className="infoButton" onMouseEnter={()=>{setOpen(true)}} onMouseLeave={()=>{setOpen(false)}}
+       onTouchStart={()=>{setOpen(true)}} onTouchEnd={()=>{setOpen(false)}}>
         <i className="fa fa-question" />
       </button>
       {isOpen && (

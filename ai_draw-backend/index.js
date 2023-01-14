@@ -9,12 +9,7 @@ const http = require('http');
 const server = http.createServer(app);
 const axios = require('axios');
 const config = require('./config');
-const io = require('socket.io')(server, {
-  cors: {
-    origin: '*', // testing feature
-    methods: ['POST'],
-  },
-});
+const io = require('socket.io')(server)
 
 app.use(express.json());
 app.use(cors());
@@ -76,7 +71,7 @@ app.post('/getImage/:socketId', async (req, res) => {
         negative_prompt: 'an airplane flying through the night sky with the moon in the background',
         width: 512,
         height: 512,
-        num_inference_steps: 20,
+        num_inference_steps: 40,
       },
     };
     const response = await axios.post('https://api.replicate.com/v1/predictions', data, {

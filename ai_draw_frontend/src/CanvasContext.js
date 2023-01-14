@@ -14,7 +14,7 @@ import { capitalizeFirstLetter } from './utils/utils';
 
 const CanvasContext = React.createContext();
 
-export function CanvasProvider({ children }) { // Basically the main logic element of frontend, handles canvas and some button functionality
+export function CanvasProvider({ children }) { // Basically the main logic element of frontend,handles canvas and some button functionality
   const [isDrawing, setIsDrawing] = useState(false);
 
   const [color, setColor] = useState({
@@ -164,7 +164,6 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     }, 1000);
 
     socket.on('prediction', (data) => {
-      console.log(data, 'miks se palauttaa ton data valuen lol');
       state = data.status;
     });
 
