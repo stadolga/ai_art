@@ -15,9 +15,7 @@ function ImageComponent() {
   return (
     <div className="aiDiv">
       <img src={imageLink} alt="Uploaded Image" />
-      <div className='result-box-container'>
         <div className='result-box'>
-      </div>
         <label className="ai-text">{aiText}</label>
         <button className="button1" onClick={handleClose}>OK</button>
       </div>
