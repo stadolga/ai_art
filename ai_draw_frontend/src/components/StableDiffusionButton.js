@@ -11,8 +11,8 @@ export function StableDiffusionButton() {
   const aiText = useSelector((state) => state.response);
   const loadingMessages = useSelector((state) => state.error);
 
-  const bool = aiText === '' || aiText.includes('Draw something with mouse or touch on the canvas above for the AI to analyze!') || loadingMessages.includes('Creating the image...')
-   || loadingMessages.includes('Analyzing...');
+  const bool = aiText === '' || aiText.includes('Draw something with mouse or touch on the canvas above for the AI to analyze!')
+   || loadingMessages.includes('Time elapsed:');
 
   const handleSubmission = () => {
     let seconds = 0;

@@ -9,8 +9,8 @@ const http = require('http');
 const server = http.createServer(app);
 const axios = require('axios');
 const config = require('./config');
-const io = require("socket.io")(server, {
-  cors: {origin: "*"}
+const io = require('socket.io')(server, {
+  cors: { origin: '*' },
 });
 
 app.use(express.json());
@@ -20,9 +20,9 @@ app.use((err, req, res, next) => { console.log(err); res.status(500).send('Somet
 
 io.on('connection', (client) => {
   console.log(`${client.id} connected`);
-  console.log(`number of clients: ${io.engine.clientsCount}`)
+  console.log(`number of clients: ${io.engine.clientsCount}`);
 
-  //jos disconnectaa poistaa sut listasta
+  // jos disconnectaa poistaa sut listasta
 });
 
 app.post('/predict/:socketId', async (req, res) => {
@@ -62,6 +62,7 @@ app.post('/predict/:socketId', async (req, res) => {
     }
     res.send(getResponse.data.output);
   } catch (error) {
+    throw (error);
     console.error(error);
     res.send(error);
   }
@@ -73,7 +74,6 @@ app.post('/getImage/:socketId', async (req, res) => {
       version: 'f178fa7a1ae43a9a9af01b833b9d2ecf97b1bcb0acfd2dc5dd04895e042863f1',
       input: {
         prompt: req.body.prompt,
-        negative_prompt: 'an airplane flying through the night sky with the moon in the background',
         width: 512,
         height: 512,
         num_inference_steps: 40,
@@ -108,6 +108,7 @@ app.post('/getImage/:socketId', async (req, res) => {
 
     res.send(getResponse.data.output);
   } catch (error) {
+    throw (error);
     console.error(error);
     res.send(error);
   }

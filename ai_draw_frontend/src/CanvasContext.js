@@ -28,7 +28,6 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   const [brush, setBrush] = useState(5);
   const [cPushArray, setCPushArray] = useState([]); // Storing undo images
   const [cStep, setCStep] = useState(-1); // storing undo steps
-  const [firstUndo, setFirstUndo] = useState(true); // for fixing a glitch where first undo doesn't work
 
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
@@ -38,14 +37,6 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     contextRef.current.strokeStyle = `rgba(${color.r}, ${color.g}, ${color.b}, ${color.a})`;
     contextRef.current.lineWidth = brush;
   }, [color, brush]);
-
-  function getMousePos(mouseEvent) {
-    var rect = canvasRef.current.getBoundingClientRect();
-    return {
-      x: mouseEvent.clientX - rect.left,
-      y: mouseEvent.clientY - rect.top
-    };
-  }
 
   function blobToBase64(blob) { // turns compresses blob back to 64
     return new Promise((resolve, _) => {
@@ -74,15 +65,15 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     canvas.style.width = `${window.innerWidth / 1.3}px`;
     canvas.style.height = `${window.innerHeight / 1.6}px`;
 
-    //Mobile functionality
+    // Mobile functionality
     canvasRef.current.addEventListener('touchstart', startDrawing, { passive: false });
     canvasRef.current.addEventListener('touchmove', draw, { passive: false });
     canvasRef.current.addEventListener('touchend', cPush(), { passive: false });
-    canvas.addEventListener("touchmove", function (e) {
-      var touch = e.touches[0];
-      var mouseEvent = new MouseEvent("mousemove", {
+    canvas.addEventListener('touchmove', (e) => {
+      const touch = e.touches[0];
+      const mouseEvent = new MouseEvent('mousemove', {
         clientX: touch.clientX,
-        clientY: touch.clientY
+        clientY: touch.clientY,
       });
       canvas.dispatchEvent(mouseEvent);
     }, false);
@@ -93,35 +84,34 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   };
 
   const startDrawing = (event) => {
-    var rect = canvasRef.current.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect();
     event.returnValue = false;
     let x; let y;
     if (event.touches) {
-      x = (event.touches[0].clientX-rect.left)*1.3
-      y = (event.touches[0].clientY-rect.top)*1.6
+      x = (event.touches[0].clientX - rect.left) * 1.3;
+      y = (event.touches[0].clientY - rect.top) * 1.6;
     } else {
-      x = event.nativeEvent.offsetX*1.3 ;
+      x = event.nativeEvent.offsetX * 1.3;
       y = event.nativeEvent.offsetY * 1.6;
     }
     if (contextRef.current === null) return;
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
-    console.log("herehere")
     setIsDrawing(true);
   };
 
   const draw = (event) => {
-    var rect = canvasRef.current.getBoundingClientRect();
+    const rect = canvasRef.current.getBoundingClientRect(); //get for canvas scaling
     event.returnValue = false;
     if (!isDrawing) {
       return;
     }
     let x; let y;
     if (event.touches) {
-      x = (event.touches[0].clientX-rect.left)*1.3
-      y = (event.touches[0].clientY-rect.top)*1.6
+      x = (event.touches[0].clientX - rect.left) * 1.3;
+      y = (event.touches[0].clientY - rect.top) * 1.6;
     } else {
-      x = event.nativeEvent.offsetX*1.3 ;
+      x = event.nativeEvent.offsetX * 1.3;
       y = event.nativeEvent.offsetY * 1.6;
     }
     contextRef.current.lineTo(x, y);
@@ -130,7 +120,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
 
   const finishDrawing = (event) => {
     event.returnValue = false;
-    if(isDrawing)cPush();
+    if(isDrawing)cPush(); //there is mouse event that ends line when cursor escapes canvas, dont want this function to be called then as no new line is drawn.
     contextRef.current.closePath();
     setIsDrawing(false);
   };
@@ -141,7 +131,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     dispatch(updateError('')); // same with errors
     setCPushArray([]);
     setCStep(-1);
-    setFirstUndo(true);
+
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
     context.fillStyle = 'white';
@@ -149,26 +139,23 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   };
 
   const cPush = () => {
-    setCStep(Math.min(cStep + 1, cPushArray.length));
-    setCPushArray([...cPushArray.slice(0, cStep + 1), canvasRef.current.toDataURL()]);
+    setCStep(Math.min(cStep + 1, cPushArray.length)); //if cstep is larger set it to array lenght
+    setCPushArray([...cPushArray.slice(0, cStep + 1), canvasRef.current.toDataURL()]); //add new element
   };
-  
+
   const cUndo = () => {
-    console.log(cPushArray)
-    if(firstUndo) setFirstUndo(false); setCPushArray(cPushArray.slice(0,-1));
-    console.log(cStep)
-    if (cStep <= 0) {
+    if (cStep <= 0) { //if undoing last line
       clearCanvas();
       return;
     }
     const image = new Image();
-    image.src = cPushArray[cStep-1];
+    image.src = cPushArray[cStep - 1]; //this is important as state always doesn't update straight away, guarentees that right picture is picked.
     image.onload = function () {
       contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       contextRef.current.drawImage(this, 0, 0);
       setCStep(cStep - 1);
     };
-  }
+  };
 
   async function CanvasToAI() { // loads the ai text prompt
     dispatch(updateError(''));
@@ -176,9 +163,9 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     let state = 'Initializing';
     const interval = setInterval(() => { // creates a counter
       seconds++;
-      if(seconds>45){
+      if (seconds > 45) {
         dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(AI is busy, please wait. Time elapsed: ${seconds}s.)`));
-      }else{
+      } else {
         dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(Time elapsed: ${seconds}s)`));
       }
     }, 1000);
@@ -207,13 +194,13 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
       })
       .catch((error) => {
         if (error.code === 'ECONNABORTED') {
-          dispatch(updateError("Connection timed out. Please try again."))
-      }else{
-        dispatch(updateError("Error acurred with the server. Please try"))
-      }
+          dispatch(updateError('Connection timed out. Please try again.'));
+        } else {
+          dispatch(updateError('Error acurred with the server. Please try'));
+        }
         clearInterval(interval);
-        console.log(error)
-      })
+        console.log(error);
+      });
   }
 
   class ColorPicker extends React.Component {

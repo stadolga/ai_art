@@ -19,9 +19,9 @@ function Controls() {
   return (
     <div className="controls">
       <div className="buttons">
-      <div className="sliders">
-      <Slider />
-      </div>
+        <div className="sliders">
+          <Slider />
+        </div>
         <Togglable>
           <ColorPicker />
         </Togglable>
