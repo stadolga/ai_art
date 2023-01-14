@@ -6,14 +6,13 @@ var instance = axios.create({
   timeout: 200000, //it is expected that calls don't take more than 200 seconds
 });
 
-export const socket = io("http://localhost:8080")
-const baseUrl = "http://localhost:8080"
+export const socket = io("")
 
 
 const predictWithServer = async (picture) => {
   try {
-    
-    const response = await instance.post(baseUrl+"/predict", {
+
+    const response = await instance.post("/predict", {
       image: picture,
     });
     
@@ -26,7 +25,7 @@ const predictWithServer = async (picture) => {
 
 const getStableDiffusionImage = async (prompt) => {
   try {
-    const response = await instance.post(baseUrl+"/getImage", {
+    const response = await instance.post("/getImage", {
       prompt: prompt,
     });
     socket.on('getImage', (data) => {

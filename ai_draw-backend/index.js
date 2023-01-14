@@ -26,7 +26,6 @@ io.on('connection', (socket) => {
 
 app.post('/predict', async (req, res) => {
   try {
-    console.log("här")
     const data = {
       version: 'a4a8bafd6089e1716b06057c42b19378250d008b80fe87caa5cd36d40c1eda90',
       input: {
@@ -40,7 +39,6 @@ app.post('/predict', async (req, res) => {
         'Content-Type': 'application/json',
       },
     });
-    console.log("här2")
 
     let getResponse = await axios.get(response.data.urls.get, {
       headers: {
@@ -49,6 +47,7 @@ app.post('/predict', async (req, res) => {
     });
 
     while (getResponse.data.completed_at === null) { // fetching until getting the correct json
+      console.log(getResponse.data)
       io.emit('prediction', getResponse.data); //send data back to frontend
         await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
         getResponse = await axios.get(response.data.urls.get, {
@@ -57,14 +56,14 @@ app.post('/predict', async (req, res) => {
           },
         });
     }
-    console.log(getResponse)
+
     if(getResponse.data.status === "failed"){
       io.emit('error', getResponse.data)
     }
     res.send(getResponse.data.output);
   } catch (error) {
-    console.error(error);
-    res.send(error)
+      console.error(error);
+      res.send(error)
   }
 });
 
@@ -103,10 +102,14 @@ app.post('/getImage', async (req, res) => {
         });
     }
 
+    if(getResponse.data.status === "failed"){
+      io.emit('errorImage', getResponse.data)
+    }
+
     res.send(getResponse.data.output);
   } catch (error) {
-    console.error(error);
-    res.send(error)
+      console.error(error);
+      res.send(error)
   }
 });
 

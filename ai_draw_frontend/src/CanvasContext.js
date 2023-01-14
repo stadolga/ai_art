@@ -157,19 +157,19 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     }
 
   async function CanvasToAI() { //loads the ai text prompt
+    dispatch(updateError(""))
     let seconds = 0;
+    let state;
     const interval = setInterval(() => { //creates a counter
       seconds++;
-      let state;
-      socket.on('prediction', (data) => { //updates the state from the backend
-        state = data.status
-      });
-      dispatch(updateResponse(capitalizeFirstLetter(state)+"..." + `(Time elapsed: ${seconds})`))
+      console.log(state)
+      if(state!==undefined){
+        dispatch(updateError(capitalizeFirstLetter(state)+"... " + `(Time elapsed: ${seconds}s)`))
+      } //updates response field
     }, 1000);
-
-    socket.on('error', (data) => {
-      console.log(data.error, "!!!!!!!");
-      dispatch(updateError(data.error))
+  
+    socket.on('prediction', (data) => {
+      state = data.status
     });
     
     const options = {
@@ -184,11 +184,11 @@ export function CanvasProvider({ children }) { //Basically the main logic elemen
     const compressedFile = await imageCompression(file, options); //compressing, gives a blob back
     const compressedFileToB64 = await blobToBase64(compressedFile) //turn this blob to a b64 so ai can analyze it
 
-    predictWithServer(compressedFile)
+    predictWithServer(compressedFileToB64)
         .then((res) => {
-          clearInterval(interval);
-          dispatch(updateResponse(res));
           dispatch(updateError(""))
+          dispatch(updateResponse(res))
+          clearInterval(interval);
       })
     }
     
