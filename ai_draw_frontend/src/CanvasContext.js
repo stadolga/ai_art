@@ -91,6 +91,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     if (contextRef.current === null) return;
     contextRef.current.beginPath();
     contextRef.current.moveTo(x, y);
+    console.log("herehere")
     setIsDrawing(true);
   };
 
@@ -113,7 +114,6 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
 
   const finishDrawing = (event) => {
     event.returnValue = false;
-    console.log(isDrawing)
     if(isDrawing)cPush();
     contextRef.current.closePath();
     setIsDrawing(false);
@@ -138,15 +138,15 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   };
   
   const cUndo = () => {
-    console.log(firstUndo)
-    // if(firstUndo) setFirstUndo(false); setCPushArray(cPushArray.slice(0,-1));
+    console.log(cPushArray)
+    if(firstUndo) setFirstUndo(false); setCPushArray(cPushArray.slice(0,-1));
     console.log(cStep)
-    if (cStep < 0) {
+    if (cStep <= 0) {
       clearCanvas();
       return;
     }
     const image = new Image();
-    image.src = cPushArray[cStep];
+    image.src = cPushArray[cStep-1];
     image.onload = function () {
       contextRef.current.clearRect(0, 0, canvasRef.current.width, canvasRef.current.height);
       contextRef.current.drawImage(this, 0, 0);
