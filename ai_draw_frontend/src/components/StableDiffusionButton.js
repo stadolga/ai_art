@@ -23,11 +23,11 @@ export function StableDiffusionButton() {
       dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(Time elapsed: ${seconds}s)`)); // updates response field
     }, 1000);
 
-    socket.on('getImage', (data) => { // updates the state from the backend
+    socket.on('status', (data) => { // updates the state from the backend
       state = data.status;
     });
 
-    socket.on('errorImage', (data) => {
+    socket.on('error', (data) => {
       dispatch(updateError(`An error occured! (${data.error}). Please try again.`)); // error handler from backend
     });
 

@@ -2,7 +2,7 @@
 
 app = "aiartcritic"
 kill_signal = "SIGINT"
-kill_timeout = 5
+kill_timeout = 120
 processes = []
 
 [env]
@@ -35,4 +35,4 @@ processes = []
     grace_period = "1s"
     interval = "15s"
     restart_limit = 0
-    timeout = "2s"
+    timeout = "6s"

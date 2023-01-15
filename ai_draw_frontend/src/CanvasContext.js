@@ -168,7 +168,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
       }
     }, 1000);
 
-    socket.on('prediction', (data) => {
+    socket.on('status', (data) => {
       state = data.status;
     });
 
