@@ -9,7 +9,7 @@ import { updateResponse } from './reducers/responseReducer';
 import { updateVisible } from './reducers/visibleReducer';
 import { updateError } from './reducers/errorReducer';
 
-import { predictWithServer, socket } from './services/apiService';
+import { predictWithServer} from './services/apiService';
 import { capitalizeFirstLetter } from './utils/utils';
 
 const CanvasContext = React.createContext();
@@ -28,6 +28,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   const [brush, setBrush] = useState(5);
   const [cPushArray, setCPushArray] = useState([]); // Storing undo images
   const [cStep, setCStep] = useState(-1); // storing undo steps
+  let status = "Initializing" 
 
   const canvasRef = useRef(null);
   const contextRef = useRef(null);
@@ -158,19 +159,19 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
   async function CanvasToAI() { // loads the ai text prompt
     dispatch(updateError(''));
     let seconds = 0;
-    let state = 'Initializing';
     const interval = setInterval(() => { // creates a counter
       seconds++;
       if (seconds > 45) {
-        dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(AI is busy, please wait. Time elapsed: ${seconds}s.)`));
+        dispatch(updateError(`${capitalizeFirstLetter(status)}... ` + `(AI is busier than expected, please wait. Time elapsed: ${seconds}s.)`));
       } else {
-        dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(Time elapsed: ${seconds}s)`));
+        dispatch(updateError(`${capitalizeFirstLetter(status)}... ` + `(Time elapsed: ${seconds}s)`));
       }
     }, 1000);
 
-    socket.on('status', (data) => {
-      state = data.status;
-    });
+    const statusMessage = (message) => { //has to be this way because services is not react component
+      status = message //hooks are async so they don't update fast enough
+    }
+  
 
     const options = {
       maxSizeMB: 1, // Maximum photo size that api accepts is 1mb
@@ -183,8 +184,7 @@ export function CanvasProvider({ children }) { // Basically the main logic eleme
     const file = dataURLtoFile(picture, 'file.png'); // convert image to blob so it can be compressed
     const compressedFile = await imageCompression(file, options); // compressing, gives a blob back
     const compressedFileToB64 = await blobToBase64(compressedFile); // turn this blob to a b64 so ai can analyze it
-
-    predictWithServer(compressedFileToB64)
+    predictWithServer(compressedFileToB64, statusMessage)
       .then((res) => {
         dispatch(updateError(''));
         dispatch(updateResponse(res));

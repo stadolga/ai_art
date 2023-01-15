@@ -1,45 +1,53 @@
 import axios from 'axios';
-import io from 'socket.io-client';
 
 const instance = axios.create({
   timeout: 120000, // it is expected that calls don't take more than 120 seconds
   // do something once timeout
 });
 
-const local = "http://localhost:8080"
-
-const socket = io(local); // every user has unique socket and it's id is passed to backend to identify user
-window.onbeforeunload = function () { // when the user leaves, disconnect socket
-  socket.disconnect();
-};
-socket.on('ping', () => { //keeps connection alive so fly.io doesn't shut it off
-  socket.emit('pong');
-});
-
-const predictWithServer = async (picture) => {
+const predictWithServer = async (picture, setStatus) => {
   try {
-    const response = await instance.post(local+`/predict/${socket.id}`, {
+    let response = await instance.post("/predict", {
       image: picture,
     });
 
-    return response.data;
+    while (response.data.completed_at === null) { // fetching until getting the correct json
+      //dispatch
+      setStatus(response.data.status)
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
+      response = await instance.post("/getAPIoutcome", {
+        content: response.data.urls.get,
+      })
+    }
+    return response.data.output;
   } catch (error) {
     console.log(error);
     throw error;
   }
 };
 
-const getStableDiffusionImage = async (prompt) => {
+const getStableDiffusionImage = async (prompt, setStatus) => {
   try {
-    const response = await instance.post(local+`/getImage/${socket.id}`, {
+
+    let response = await instance.post(`/getImage/`, {
       prompt,
     });
 
-    return response.data[0];
+    while (response.data.completed_at === null) { // fetching until getting the correct json
+      //dispatch
+      setStatus(response.data.status)
+      await new Promise((resolve) => setTimeout(resolve, 3000)); // wait for 3 seconds before trying again
+      response = await instance.post("/getAPIoutcome", {
+        content: response.data.urls.get,
+      })
+    }
+    if(response.data.error !== null){
+      throw new Error()
+    }
+    return response.data;
   } catch (error) {
-    console.log(error);
     throw error;
   }
 };
 
-export { predictWithServer, getStableDiffusionImage, socket };
+export { predictWithServer, getStableDiffusionImage};

@@ -1,13 +1,15 @@
 import React, { useRef, useState, useEffect } from 'react';
 import { useSelector, useDispatch } from 'react-redux';
 import { updateImage } from '../reducers/imageReducer';
-import { getStableDiffusionImage, socket } from '../services/apiService';
+import { getStableDiffusionImage} from '../services/apiService';
 import { updateError } from '../reducers/errorReducer';
 import { capitalizeFirstLetter } from '../utils/utils';
+import { updateResponse } from '../reducers/responseReducer';
 
 export function StableDiffusionButton() {
   const button = useRef(null);
   const dispatch = useDispatch();
+  let status = "Initializing"
   const aiText = useSelector((state) => state.response);
   const loadingMessages = useSelector((state) => state.error);
 
@@ -16,31 +18,30 @@ export function StableDiffusionButton() {
 
   const handleSubmission = () => {
     let seconds = 0;
-    let state = 'Initializing';
 
     const interval = setInterval(() => { // creates a counter
       seconds++;
-      dispatch(updateError(`${capitalizeFirstLetter(state)}... ` + `(Time elapsed: ${seconds}s)`)); // updates response field
+      if (seconds > 45) {
+        dispatch(updateError(`${capitalizeFirstLetter(status)}... ` + `(AI is busier than expected, please wait. Time elapsed: ${seconds}s.)`));
+      } else {
+        dispatch(updateError(`${capitalizeFirstLetter(status)}... ` + `(Time elapsed: ${seconds}s)`));
+      } // updates response field
     }, 1000);
 
-    socket.on('status', (data) => { // updates the state from the backend
-      state = data.status;
-    });
+    const statusMessage = (message) => { //has to be this way because services is not react component
+      status = message //hooks are async so they don't update fast enough
+    }
 
-    socket.on('error', (data) => {
-      dispatch(updateError(`An error occured! (${data.error}). Please try again.`)); // error handler from backend
-    });
-
-    getStableDiffusionImage(aiText)
+    getStableDiffusionImage(aiText, statusMessage)
       .then((response) => {
         clearInterval(interval);
         dispatch(updateError(''));
-        dispatch(updateImage(response));
+        dispatch(updateResponse(response.input.prompt))
+        dispatch(updateImage(response.output[0]));
       })
       .catch((error) => {
-        console.log(error);
+        dispatch(updateError("NSFW content detected, AI didn't generate an image. Please try again, this usually fixes the problem."))
         clearInterval(interval);
-        throw (error)
       });
   };
 
